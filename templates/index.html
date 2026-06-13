@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contact Us — ReachOut</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #0a0a0a;
+      --dark:    #111111;
+      --card:    #161616;
+      --border:  #2a2a2a;
+      --mid:     #444444;
+      --muted:   #888888;
+      --light:   #cccccc;
+      --white:   #f5f5f5;
+      --accent:  #ffffff;
+      --radius:  10px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Canvas 3D-ish background ─────────────────────────── */
+    #bg-canvas {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none;
+    }
+
+    .wrapper { position: relative; z-index: 1; }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 40px;
+      background: rgba(10,10,10,0.9);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.4rem; color: var(--white); letter-spacing: -0.3px;
+    }
+    .logo em { font-style: italic; color: var(--muted); }
+
+    .admin-link {
+      font-size: 0.75rem; color: var(--muted); text-decoration: none;
+      border: 1px solid var(--border); padding: 6px 14px; border-radius: 6px;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .admin-link:hover { color: var(--white); border-color: var(--mid); }
+
+    /* ── Hero ───────────────────────────────────────────────── */
+    .hero {
+      max-width: 680px; margin: 0 auto;
+      padding: 80px 24px 40px;
+      text-align: center;
+    }
+    .eyebrow {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 3px;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 18px;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+    }
+    .eyebrow::before, .eyebrow::after {
+      content: ''; flex: 1; max-width: 60px; height: 1px; background: var(--border);
+    }
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      font-weight: 400; line-height: 1.1;
+      color: var(--white); margin-bottom: 16px;
+    }
+    .hero h1 em { font-style: italic; color: var(--muted); }
+    .hero p { font-size: 1rem; color: var(--muted); line-height: 1.65; max-width: 440px; margin: 0 auto; }
+
+    /* ── Form card ──────────────────────────────────────────── */
+    .form-wrap {
+      max-width: 620px; margin: 0 auto;
+      padding: 0 24px 100px;
+    }
+
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 44px 40px;
+    }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+
+    .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+    .field label {
+      font-size: 0.75rem; font-weight: 600; color: var(--light);
+      letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .field input,
+    .field textarea,
+    .field select {
+      background: var(--dark);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.92rem;
+      padding: 12px 16px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      width: 100%;
+      resize: none;
+    }
+    .field input::placeholder,
+    .field textarea::placeholder { color: var(--mid); }
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus {
+      border-color: var(--muted);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.05);
+    }
+    .field textarea { height: 130px; }
+    .field select { cursor: pointer; }
+    .field select option { background: #1a1a1a; }
+
+    /* character count */
+    .char-count { font-size: 0.7rem; color: var(--mid); text-align: right; margin-top: 4px; }
+
+    /* ── Submit button ──────────────────────────────────────── */
+    .btn-submit {
+      width: 100%;
+      background: var(--white);
+      color: var(--black);
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 14px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      margin-top: 6px;
+      letter-spacing: 0.3px;
+    }
+    .btn-submit:hover { background: #e0e0e0; }
+    .btn-submit:active { transform: scale(0.99); }
+    .btn-submit:disabled { background: var(--mid); color: var(--dark); cursor: not-allowed; }
+
+    /* ── Toast notification ────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(100px);
+      background: var(--white); color: var(--black);
+      padding: 14px 24px; border-radius: 10px;
+      font-size: 0.88rem; font-weight: 500;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+      z-index: 999; transition: transform 0.35s cubic-bezier(.34,1.56,.64,1);
+      max-width: 90vw; text-align: center;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.error { background: #1a1a1a; color: #f87171; border: 1px solid #f87171; }
+
+    /* ── Error messages ─────────────────────────────────────── */
+    .field-error { font-size: 0.75rem; color: #f87171; margin-top: 4px; display: none; }
+    .field input.invalid,
+    .field textarea.invalid { border-color: #f87171; }
+
+    /* ── Info strip ─────────────────────────────────────────── */
+    .info-strip {
+      display: flex; gap: 0;
+      border: 1px solid var(--border); border-radius: 12px;
+      overflow: hidden; margin-bottom: 36px;
+    }
+    .info-item {
+      flex: 1; padding: 20px;
+      border-right: 1px solid var(--border);
+      text-align: center;
+    }
+    .info-item:last-child { border-right: none; }
+    .info-icon { font-size: 1.3rem; margin-bottom: 6px; }
+    .info-label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .info-val { font-size: 0.82rem; color: var(--light); font-weight: 500; }
+
+    /* ── Footer ─────────────────────────────────────────────── */
+    footer {
+      text-align: center; padding: 24px;
+      color: var(--mid); font-size: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 580px) {
+      header { padding: 16px 20px; }
+      .form-card { padding: 28px 20px; }
+      .form-row { grid-template-columns: 1fr; }
+      .info-strip { flex-direction: column; }
+      .info-item { border-right: none; border-bottom: 1px solid var(--border); }
+      .info-item:last-child { border-bottom: none; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<div class="wrapper">
+
+  <header>
+    <div class="logo">Reach<em>Out</em></div>
+    <a class="admin-link" href="/admin-login">Admin Panel →</a>
+  </header>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="eyebrow">Get in touch</div>
+    <h1>Let's start a<br/><em>conversation.</em></h1>
+    <p>Fill out the form below and we'll get back to you within 24 hours.</p>
+  </div>
+
+  <!-- Form -->
+  <div class="form-wrap">
+
+    <!-- Info strip -->
+    <div class="info-strip">
+      <div class="info-item">
+        <div class="info-icon">📬</div>
+        <div class="info-label">Email</div>
+        <div class="info-val">hello@reachout.dev</div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">⏱</div>
+        <div class="info-label">Response time</div>
+        <div class="info-val">Within 24 hours</div>
+      </div>
+      <div class="info-item">
+        <div class="info-icon">🌍</div>
+        <div class="info-label">Available</div>
+        <div class="info-val">Mon – Sat</div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <form id="contact-form" novalidate>
+
+        <div class="form-row">
+          <div class="field">
+            <label for="name">Your Name *</label>
+            <input type="text" id="name" name="name" placeholder="Shubham Sharma" autocomplete="name"/>
+            <span class="field-error" id="err-name">Please enter your name.</span>
+          </div>
+          <div class="field">
+            <label for="email">Email Address *</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email"/>
+            <span class="field-error" id="err-email">Enter a valid email.</span>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="subject">Subject</label>
+          <select id="subject" name="subject">
+            <option value="">— Choose a topic —</option>
+            <option value="General Inquiry">General Inquiry</option>
+            <option value="Project Collaboration">Project Collaboration</option>
+            <option value="Freelance Work">Freelance Work</option>
+            <option value="Bug Report">Bug Report</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="message">Message *</label>
+          <textarea id="message" name="message" placeholder="Describe what you have in mind…" maxlength="1000"></textarea>
+          <div class="char-count"><span id="char-num">0</span> / 1000</div>
+          <span class="field-error" id="err-message">Message cannot be empty.</span>
+        </div>
+
+        <button type="submit" class="btn-submit" id="submit-btn">Send Message</button>
+      </form>
+    </div>
+  </div>
+
+  <footer>ReachOut © 2025 &nbsp;·&nbsp; Built with Python Flask</footer>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── Canvas background — subtle 3D grid + floating particles ──────────────
+  (function () {
+    const canvas = document.getElementById('bg-canvas');
+    const ctx    = canvas.getContext('2d');
+    let W, H, particles;
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+
+    function makeParticles(n) {
+      return Array.from({ length: n }, () => ({
+        x:  Math.random() * W,
+        y:  Math.random() * H,
+        r:  1 + Math.random() * 2,
+        dx: (Math.random() - 0.5) * 0.3,
+        dy: (Math.random() - 0.5) * 0.3,
+        a:  0.1 + Math.random() * 0.25,
+      }));
+    }
+
+    function drawGrid() {
+      const spacing = 60;
+      ctx.strokeStyle = 'rgba(255,255,255,0.025)';
+      ctx.lineWidth = 1;
+      // vertical lines
+      for (let x = 0; x < W; x += spacing) {
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+      // horizontal lines
+      for (let y = 0; y < H; y += spacing) {
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+      drawGrid();
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${p.a})`;
+        ctx.fill();
+        p.x += p.dx; p.y += p.dy;
+        if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+      });
+      requestAnimationFrame(draw);
+    }
+
+    resize();
+    particles = makeParticles(60);
+    window.addEventListener('resize', () => { resize(); particles = makeParticles(60); });
+    draw();
+  })();
+
+  // ── Character counter ─────────────────────────────────────────────────────
+  const msgArea = document.getElementById('message');
+  const charNum = document.getElementById('char-num');
+  msgArea.addEventListener('input', () => { charNum.textContent = msgArea.value.length; });
+
+  // ── Toast helper ──────────────────────────────────────────────────────────
+  function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className   = 'toast' + (isError ? ' error' : '');
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => t.classList.remove('show'), 4000);
+  }
+
+  // ── Form validation helpers ───────────────────────────────────────────────
+  function setInvalid(id, errId) {
+    document.getElementById(id).classList.add('invalid');
+    document.getElementById(errId).style.display = 'block';
+  }
+  function clearInvalid(id, errId) {
+    document.getElementById(id).classList.remove('invalid');
+    document.getElementById(errId).style.display = 'none';
+  }
+
+  // ── Form submit — posts to Python Flask /submit ───────────────────────────
+  document.getElementById('contact-form').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const name    = document.getElementById('name').value.trim();
+    const email   = document.getElementById('email').value.trim();
+    const message = document.getElementById('message').value.trim();
+    let valid     = true;
+
+    // Client-side validation
+    if (!name)  { setInvalid('name', 'err-name');     valid = false; }
+    else          clearInvalid('name', 'err-name');
+    if (!email || !email.includes('@')) { setInvalid('email', 'err-email'); valid = false; }
+    else          clearInvalid('email', 'err-email');
+    if (!message) { setInvalid('message', 'err-message'); valid = false; }
+    else           clearInvalid('message', 'err-message');
+
+    if (!valid) return;
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled    = true;
+    btn.textContent = 'Sending…';
+
+    try {
+      const formData = new FormData(this);
+      const res      = await fetch('/submit', { method: 'POST', body: formData });
+      const data     = await res.json();
+
+      if (data.success) {
+        showToast(data.message);
+        this.reset();
+        charNum.textContent = '0';
+      } else {
+        showToast((data.errors || ['Something went wrong.']).join(' '), true);
+      }
+    } catch (err) {
+      showToast('Network error. Please try again.', true);
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = 'Send Message';
+    }
+  });
+
+  // ── Clear validation on input ─────────────────────────────────────────────
+  ['name','email','message'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      clearInvalid(id, 'err-' + id);
+    });
+  });
+</script>
+</body>
+</html>
